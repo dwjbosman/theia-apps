@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+# This script checks if the container with the supplied name already exists.
+# If so and running, you are logged in.
+# If not, it is created.
+#  When creating:
+#  This script runs commands passed as arguments within the build container
+#  1. it mounts your home directory in the container
+#  2. it creates a user with the correct uid,gid in the container so that the
+#    container can create files in the home directory with correct ownership
+#
+
+# Usage:
+# 1) when creating a container:
+#   ex-bash (without parameters)
+#   ex-bash <image-name>
+#   ex-bash <image-name> <container-name-prefix>
+#   ex-bash <image-name> <container-name-prefix> <cmd in container>
+# 2) when accessing an existing container
+#   depends on what you passed when creating; use the same
+
+
+# Bash's exit on error
+set -e
+set -x
+
+
+# Check if any parameters were given
+# Old and default
+SOURCE_IMAGE="theia_rust_image"
+CONTAINER_PREFIX="default"
+CMD_IN_CONTAINER=(/bin/bash)
+# Env variables explanation:
+# TERM: to change the default terminal from none to xterm with colors
+# TMUX: to forward the value of the existing TMUX variable to the container (so you can tell you are in tmux)
+
+if [ ! -e "${TMUX}" ]; then
+    #if not set use a dummy value
+    TMUX=0
+fi
+ENV_VARIABLES="--env TERM=xterm-256color --env TMUX=${TMUX}"
+
+SCRIPTNAME=$(basename $BASH_SOURCE)
+
+if [ $# -eq 0 ] ; then
+    DUMMY=1
+else
+    if [ $SCRIPTNAME == "ex" ]; then
+        # if ex (short) version of this command is called then the argument is immediately
+        # passed
+        ARGUMENTS=${@:1}
+        CURPATH=`pwd`
+
+        CMD_IN_CONTAINER=(su $USER -c "cd $CURPATH; $ARGUMENTS")
+
+    else
+
+        if [ "${1}" == "test" ]; then
+            SOURCE_IMAGE="theia_rust_image"
+        else
+            SOURCE_IMAGE=${1}
+        fi
+        if [ -z "${2}" ]; then
+            CONTAINER_PREFIX="default"
+        else
+            CONTAINER_PREFIX="${2}"
+        fi
+        if [ -z "${3}" ]; then
+            CMD_IN_CONTAINER=(/bin/bash)
+        else
+            CMD_IN_CONTAINER=(${3})
+        fi
+    fi
+fi
+
+# Set up the container name
+CONTAINER_NAME="${CONTAINER_PREFIX}-${SOURCE_IMAGE}-${USER}"
+echo "Searching for Docker container: ${CONTAINER_NAME}"
+CID=$(docker ps -q -f status=running -f name=^/${CONTAINER_NAME}$)
+
+
+if [ ! "${CID}" ]; then
+      echo "Docker container doesn't exist yet; creating."
+      echo "Using source Docker image: ${SOURCE_IMAGE}"
+      USER_UID=$(id -u $USER)
+      USER_GID=$(id -g $USER)
+
+      WWW_UID=$(id -u www-data)
+      WWW_GID=$(id -g www-data)
+
+      #security-opt seccomp=unconfined needed to avoid "Error disabling address
+      #space randomization: Operation not permitted" in gdb
+
+      # Prepare the container
+      docker run \
+          -td \
+          -P \
+          -v /home/$USER:/home/$USER \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          --name "${CONTAINER_NAME}" \
+          "${SOURCE_IMAGE}" \
+          /bin/bash
+      # Add the current user to the container
+      docker exec \
+          -ti \
+          ${ENV_VARIABLES} \
+          ${CONTAINER_NAME} \
+          /bin/bash -c "addgroup --gid $USER_GID $USER >/dev/null 2>&1 && adduser --no-create-home --disabled-password --gecos \"\" --uid $USER_UID --gid $USER_GID $USER >/dev/null 2>&1 && usermod -a -G docker $USER && usermod -a -G www-data $USER && usermod -a -G sudo $USER"
+
+      CID=$(docker ps -q -f status=running -f name=^/${CONTAINER_NAME}$)
+fi
+echo "Opening container: ${CONTAINER_NAME}"
+echo "Executing command: ${CMD_IN_CONTAINER[@]}"
+echo "Using environment variables: ${ENV_VARIABLES}"
+docker exec -ti ${ENV_VARIABLES} ${CID} ${CMD_IN_CONTAINER[@]}
