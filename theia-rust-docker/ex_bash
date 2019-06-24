@@ -50,6 +50,8 @@ else
         ARGUMENTS=${@:1}
         CURPATH=`pwd`
 
+        #TODO source $HOME/.cargo/env
+
         CMD_IN_CONTAINER=(su $USER -c "cd $CURPATH; $ARGUMENTS")
 
     else

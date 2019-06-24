@@ -1,11 +1,13 @@
 .PHONY: get-files rm-files image clean-image run bash push pull
 
+#call with THEIA_VERSION set to latest or next
+
 HOST_NAME=$(shell hostname)
 
 BACKUPS_DIR = /var/artifacts/configuration_management
 REGISTRY=$(HOST_NAME):5000
 REGISTRY_REMOTE=localhost:5001
-DOCKER_IMAGE = theia_rust_image
+DOCKER_IMAGE = theia_rust_image:${THEIA_VERSION}
 DOCKER_CONTAINER = theia_rust_container
 BUILD_DIR = build-env
 SHELL=/usr/bin/env bash
@@ -24,7 +26,7 @@ identification:
 # Performing get-files before 'make image' will force a rerun of all layers in the Dockerfile, because of changed file timestamps.
 # You are hereby warned of the delay!
 image: identification
-	docker build -t $(DOCKER_IMAGE) .
+	docker build --build-arg rust_channel=${RUST_CHANNEL} --build-arg theia_version=${THEIA_VERSION} -t $(DOCKER_IMAGE) .
 
 # This empty directory '$(BUILD_DIR)' exists in git, with only an .gitignore file, set to ignore the entire contents of the dir.
 # This helps to avoid committing files in that dir to git.
@@ -47,11 +49,11 @@ get-files: rm-files
 	# Add these archived files from external sources to the current directory.
 	# Docker will automatically extract them, during image building, with the ADD command.
 	# TODO
-
+	git clone git@github.com:theia-ide/theia-rust-extension.git $(BUILD_DIR)/theia_rust_extension
 
 
 clean-image: get-files
-	docker build --no-cache -t $(DOCKER_IMAGE) .
+	docker build --no-cache --build-arg rust_channel=${RUST_CHANNEL} --build-arg version=${THEIA_VERSION} -t $(DOCKER_IMAGE) .
 
 push:
 	docker tag ${DOCKER_IMAGE} ${REGISTRY}/${DOCKER_IMAGE}
