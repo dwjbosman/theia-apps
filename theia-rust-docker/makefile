@@ -7,7 +7,7 @@ HOST_NAME=$(shell hostname)
 BACKUPS_DIR = /var/artifacts/configuration_management
 REGISTRY=$(HOST_NAME):5000
 REGISTRY_REMOTE=localhost:5001
-DOCKER_IMAGE = theia_rust_image:${THEIA_VERSION}
+DOCKER_IMAGE = theia_rust_image:latest
 DOCKER_CONTAINER = theia_rust_container
 BUILD_DIR = build-env
 SHELL=/usr/bin/env bash
@@ -17,6 +17,7 @@ KERNEL:=$(shell uname -r)
 
 CONTAINER_PARAMS = \
 --rm \
+-p 3000:3000 \
 -v /var/run/docker.sock:/var/run/docker.sock
 
 identification:
@@ -26,7 +27,7 @@ identification:
 # Performing get-files before 'make image' will force a rerun of all layers in the Dockerfile, because of changed file timestamps.
 # You are hereby warned of the delay!
 image: identification
-	docker build --build-arg rust_channel=${RUST_CHANNEL} --build-arg theia_version=${THEIA_VERSION} -t $(DOCKER_IMAGE) .
+	docker build --build-arg rust_channel=${RUST_CHANNEL} -t $(DOCKER_IMAGE) .
 
 # This empty directory '$(BUILD_DIR)' exists in git, with only an .gitignore file, set to ignore the entire contents of the dir.
 # This helps to avoid committing files in that dir to git.
@@ -36,14 +37,12 @@ rm-files:
 	find . ! -name '.gitignore' -type d -exec rm -rf {} + > /dev/null 2>&1 ; \
 	exit 0
 
-run: bash
-
-bash:
+run:
 	docker run -ti \
 	$(CONTAINER_PARAMS) \
 	--name ${DOCKER_CONTAINER} \
 	${DOCKER_IMAGE} \
-	/bin/bash
+	/root/run.sh
 
 get-files: rm-files
 	# Add these archived files from external sources to the current directory.
@@ -53,7 +52,7 @@ get-files: rm-files
 
 
 clean-image: get-files
-	docker build --no-cache --build-arg rust_channel=${RUST_CHANNEL} --build-arg version=${THEIA_VERSION} -t $(DOCKER_IMAGE) .
+	docker build --no-cache --build-arg rust_channel=${RUST_CHANNEL} -t $(DOCKER_IMAGE) .
 
 push:
 	docker tag ${DOCKER_IMAGE} ${REGISTRY}/${DOCKER_IMAGE}

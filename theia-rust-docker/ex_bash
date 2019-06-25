@@ -95,7 +95,7 @@ if [ ! "${CID}" ]; then
       # Prepare the container
       docker run \
           -td \
-          -P \
+          -p 3000:3000 \
           -v /home/$USER:/home/$USER \
           -v /var/run/docker.sock:/var/run/docker.sock \
           --name "${CONTAINER_NAME}" \
@@ -106,7 +106,7 @@ if [ ! "${CID}" ]; then
           -ti \
           ${ENV_VARIABLES} \
           ${CONTAINER_NAME} \
-          /bin/bash -c "addgroup --gid $USER_GID $USER >/dev/null 2>&1 && adduser --no-create-home --disabled-password --gecos \"\" --uid $USER_UID --gid $USER_GID $USER >/dev/null 2>&1 && usermod -a -G docker $USER && usermod -a -G www-data $USER && usermod -a -G sudo $USER"
+          /bin/bash -c "addgroup --gid $USER_GID $USER >/dev/null 2>&1 && adduser --no-create-home --disabled-password --gecos \"\" --uid $USER_UID --gid $USER_GID $USER >/dev/null 2>&1 && usermod -a -G sudo $USER"
 
       CID=$(docker ps -q -f status=running -f name=^/${CONTAINER_NAME}$)
 fi
