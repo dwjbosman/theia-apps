@@ -28,7 +28,7 @@ set -x
 # Old and default
 SOURCE_IMAGE="theia_rust_image"
 CONTAINER_PREFIX="default"
-CMD_IN_CONTAINER=(/bin/bash)
+CMD_IN_CONTAINER=(/bin/bash -c "su $USER")
 # Env variables explanation:
 # TERM: to change the default terminal from none to xterm with colors
 # TMUX: to forward the value of the existing TMUX variable to the container (so you can tell you are in tmux)
@@ -69,7 +69,7 @@ else
         if [ -z "${3}" ]; then
             CMD_IN_CONTAINER=(/bin/bash)
         else
-            CMD_IN_CONTAINER=(${3})
+            CMD_IN_CONTAINER=(zooi ${3})
         fi
     fi
 fi
@@ -97,10 +97,10 @@ if [ ! "${CID}" ]; then
           -td \
           -p 3000:3000 \
           -v /home/$USER:/home/$USER \
-          -v /var/run/docker.sock:/var/run/docker.sock \
+	      --mount source=rust-cargo-vol,target=/root/.cargo \
           --name "${CONTAINER_NAME}" \
           "${SOURCE_IMAGE}" \
-          /bin/bash
+          /bin/bash 
       # Add the current user to the container
       docker exec \
           -ti \

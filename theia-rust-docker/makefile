@@ -38,8 +38,10 @@ rm-files:
 	exit 0
 
 run:
+# create a volume 'rust-cargo-vol' for persistent cargo environment if it doesn't exist
 	docker run -ti \
 	$(CONTAINER_PARAMS) \
+	--mount source=rust-cargo-vol,target=/root/.cargo
 	--name ${DOCKER_CONTAINER} \
 	${DOCKER_IMAGE} \
 	/root/run.sh
