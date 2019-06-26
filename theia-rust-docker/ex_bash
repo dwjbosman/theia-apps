@@ -28,7 +28,8 @@ set -x
 # Old and default
 SOURCE_IMAGE="theia_rust_image"
 CONTAINER_PREFIX="default"
-CMD_IN_CONTAINER=(/bin/bash -c "su $USER")
+CURPATH=`pwd`
+CMD_IN_CONTAINER="sudo -i -u $USER bash -c /root/start.sh"
 # Env variables explanation:
 # TERM: to change the default terminal from none to xterm with colors
 # TMUX: to forward the value of the existing TMUX variable to the container (so you can tell you are in tmux)
@@ -37,7 +38,7 @@ if [ ! -e "${TMUX}" ]; then
     #if not set use a dummy value
     TMUX=0
 fi
-ENV_VARIABLES="--env TERM=xterm-256color --env TMUX=${TMUX}"
+ENV_VARIABLES="--env CONTAINER_START_PATH=""$CURPATH"" --env TERM=xterm-256color --env TMUX=${TMUX}"
 
 SCRIPTNAME=$(basename $BASH_SOURCE)
 
@@ -48,7 +49,6 @@ else
         # if ex (short) version of this command is called then the argument is immediately
         # passed
         ARGUMENTS=${@:1}
-        CURPATH=`pwd`
 
         #TODO source $HOME/.cargo/env
 
@@ -99,6 +99,7 @@ if [ ! "${CID}" ]; then
           -v /home/$USER:/home/$USER \
 	      --mount source=rust-cargo-vol,target=/root/.cargo \
           --name "${CONTAINER_NAME}" \
+          ${ENV_VARIABLES} \
           "${SOURCE_IMAGE}" \
           /bin/bash 
       # Add the current user to the container
@@ -114,3 +115,4 @@ echo "Opening container: ${CONTAINER_NAME}"
 echo "Executing command: ${CMD_IN_CONTAINER[@]}"
 echo "Using environment variables: ${ENV_VARIABLES}"
 docker exec -ti ${ENV_VARIABLES} ${CID} ${CMD_IN_CONTAINER[@]}
+

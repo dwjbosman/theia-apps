@@ -59,6 +59,9 @@ RUN cd /root/theia_rust_extension && yarn
 EXPOSE 3000
 ENV SHELL /bin/bash
 ADD run.sh /root/run.sh
+ADD start.sh /root/start.sh
+RUN chmod 755 /root \
+    && chmod 755 /root/start.sh
 #ENTRYPOINT [ "/root/run.sh" ]
 #WORKDIR $HOME/theia_rust_extension/browser-app
 #ENTRYPOINT [ "yarn", "theia", "start", "/home/project", "--hostname=0.0.0.0" ]
