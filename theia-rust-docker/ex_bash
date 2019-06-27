@@ -42,30 +42,33 @@ ENV_VARIABLES="--env CONTAINER_START_PATH=""$CURPATH"" --env TERM=xterm-256color
 
 SCRIPTNAME=$(basename $BASH_SOURCE)
 
+echo "script is $SCRIPTNAME"
+
+
 if [ $# -eq 0 ] ; then
     DUMMY=1
-else
-    if [ $SCRIPTNAME == "ex" ]; then
-        # if ex (short) version of this command is called then the argument is immediately
-        # passed
-        ARGUMENTS=${@:1}
+elif [ $# -eq 1 ] ; then
+    CMD_IN_CONTAINER=(${1})
+elif [ $# -eq 2 ] ; then
+    CMD_IN_CONTAINER=(${2})
+    SOURCE_IMAGE=${1}
+elif [ $# -eq 3 ] ; then
+    CMD_IN_CONTAINER=(${1})
+    SOURCE_IMAGE=${2}
+    CONTAINER_PREFIX="${2}"
+fi
 
-        #TODO source $HOME/.cargo/env
-
-    else
-
-        if [ "${1}" == "test" ]; then
-            SOURCE_IMAGE="theia_rust_image"
-        else
-            SOURCE_IMAGE=${1}
-        fi
-        if [ "${2}" ]; then
-            CONTAINER_PREFIX="${2}"
-        fi
-        if [ "${3}" ]; then
-            CMD_IN_CONTAINER=(${3})
-        fi
-    fi
+if [ $SCRIPTNAME == "ex" ]; then
+    # if ex (short) version of this command is called then the argument is immediately
+    # passed
+    ARGS=${@:1}
+    echo "arguments: $ARGS"
+    #ARGS2=$(printf "%q" "$ARGS")
+    #echo "arguments: $ARGS2"
+    CMD_IN_CONTAINER="sudo -i -u $USER bash --rcfile /root/bashrc -ci $ARGS"
+    echo "arguments: $CMD_IN_CONTAINER"
+elif [ $SCRIPTNAME == "ex_theia" ]; then
+    CMD_IN_CONTAINER="sudo -i -u $USER bash --rcfile /root/bashrc -i /root/run.sh"
 fi
 
 # Set up the container name
@@ -108,5 +111,8 @@ fi
 echo "Opening container: ${CONTAINER_NAME}"
 echo "Executing command: ${CMD_IN_CONTAINER[@]}"
 echo "Using environment variables: ${ENV_VARIABLES}"
-docker exec -ti ${ENV_VARIABLES} ${CID} ${CMD_IN_CONTAINER[@]}
+
+Y="bash -c "\ "ls -al"
+X=$Y
+docker exec -ti ${ENV_VARIABLES} ${CID} ${CMD_IN_CONTAINER}
 

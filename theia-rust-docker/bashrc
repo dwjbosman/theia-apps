@@ -1,3 +1,5 @@
+#CONTAINER_START_PATH is passed as an env var when the container is created it is passed to the current user via the root environment (see sudoers)
+echo "CONTAINER_START_PATH: $CONTAINER_START_PATH"
 cd "$CONTAINER_START_PATH"
 source $HOME/.bashrc
 export RUSTUP_HOME=/root/rust/rustup

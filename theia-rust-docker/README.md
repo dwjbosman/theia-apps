@@ -1,14 +1,30 @@
-# Rust
+# Theia with Rust support
 
-## building the image
+## Building the image
 
-make get-files
-make image
+RUST\_CHANNEL=nightly make image
 
-## run the editor
-./ex\_bash
+## Start Theia
 
+1. cd to a folder in your home dir.
+  
+2. Start editor
 
-```
-docker pull theiaide/theia-python:${VERSION}
-```
+<pre>ex\_theia</pre>
+
+This creates a container and mounts your home dir. It creates a user inside the container with matching UID/GID so that you can edit files without corrupting permissions. A volume rust-cargo-vol is created in which the rust environment is stored. This will allow you to persistently install crates etc. across container life cycles.
+
+## Bash inside the container
+
+3. Start a bash within the container
+
+<pre>ex\_bash</pre>
+
+4. Run a single command in the container
+
+<pre>ex ...command...</pre>
+
+eg.
+
+<pre>ex cargo</pre>
+
