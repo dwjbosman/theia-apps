@@ -1,0 +1,5 @@
+cd "$CONTAINER_START_PATH"
+source $HOME/.bashrc
+export RUSTUP_HOME=/root/rust/rustup
+export CARGO_HOME=/root/rust/cargo
+source /root/rust/cargo/env

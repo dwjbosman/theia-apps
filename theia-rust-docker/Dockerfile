@@ -27,14 +27,16 @@ ADD sudoers /etc/sudoers
 #    python-language-server \
 #    flake8 \
 #    autopep8
+ARG rust_channel=nightly
+ENV RUSTUP_HOME /root/rust/rustup
+ENV CARGO_HOME /root/rust/cargo
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > /tmp/sh.rustup.rs && sh /tmp/sh.rustup.rs -y
 
-ARG rust_channel=nightly
-RUN . /root/.cargo/env && rustup toolchain install $rust_channel
-RUN . /root/.cargo/env && rustup default $rust_channel
-RUN . /root/.cargo/env && rustup component add rls rust-analysis rust-src
-RUN . /root/.cargo/env && cargo +$rust_channel install racer
+RUN . /root/rust/cargo/env && rustup toolchain install $rust_channel
+RUN . /root/rust/cargo/env && rustup default $rust_channel
+RUN . /root/rust/cargo/env && rustup component add rls rust-analysis rust-src
+RUN . /root/rust/cargo/env && cargo +$rust_channel install racer
 
 ADD build-env/theia_rust_extension /root/theia_rust_extension
 #RUN cd /root/theia_rust_extension && npm install
@@ -59,9 +61,11 @@ RUN cd /root/theia_rust_extension && yarn
 EXPOSE 3000
 ENV SHELL /bin/bash
 ADD run.sh /root/run.sh
-ADD start.sh /root/start.sh
+ADD bashrc /root/bashrc
 RUN chmod 755 /root \
-    && chmod 755 /root/start.sh
+    && chmod 755 /root/bashrc
+
+RUN chmod 777 /root/theia_rust_extension/browser-app
 #ENTRYPOINT [ "/root/run.sh" ]
 #WORKDIR $HOME/theia_rust_extension/browser-app
 #ENTRYPOINT [ "yarn", "theia", "start", "/home/project", "--hostname=0.0.0.0" ]

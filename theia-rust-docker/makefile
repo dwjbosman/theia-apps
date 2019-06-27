@@ -15,11 +15,6 @@ SHELL=/usr/bin/env bash
 KERNEL:=$(shell uname -r)
 
 
-CONTAINER_PARAMS = \
---rm \
--p 3000:3000 \
--v /var/run/docker.sock:/var/run/docker.sock
-
 identification:
 	echo "Created from configurationmanagement repo, commit: " > $(BUILD_DIR)/identification.txt
 	git rev-parse --verify HEAD >> $(BUILD_DIR)/identification.txt
@@ -36,15 +31,6 @@ rm-files:
 	find . ! -name '.gitignore' -type f -exec rm -f {} + && \
 	find . ! -name '.gitignore' -type d -exec rm -rf {} + > /dev/null 2>&1 ; \
 	exit 0
-
-run:
-# create a volume 'rust-cargo-vol' for persistent cargo environment if it doesn't exist
-	docker run -ti \
-	$(CONTAINER_PARAMS) \
-	--mount source=rust-cargo-vol,target=/root/.cargo
-	--name ${DOCKER_CONTAINER} \
-	${DOCKER_IMAGE} \
-	/root/run.sh
 
 get-files: rm-files
 	# Add these archived files from external sources to the current directory.

@@ -1,2 +1,0 @@
-cd "$CONTAINER_START_PATH"
-bash

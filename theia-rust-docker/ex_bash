@@ -29,7 +29,7 @@ set -x
 SOURCE_IMAGE="theia_rust_image"
 CONTAINER_PREFIX="default"
 CURPATH=`pwd`
-CMD_IN_CONTAINER="sudo -i -u $USER bash -c /root/start.sh"
+CMD_IN_CONTAINER="sudo -i -u $USER bash --rcfile /root/bashrc"
 # Env variables explanation:
 # TERM: to change the default terminal from none to xterm with colors
 # TMUX: to forward the value of the existing TMUX variable to the container (so you can tell you are in tmux)
@@ -52,8 +52,6 @@ else
 
         #TODO source $HOME/.cargo/env
 
-        CMD_IN_CONTAINER=(su $USER -c "cd $CURPATH; $ARGUMENTS")
-
     else
 
         if [ "${1}" == "test" ]; then
@@ -61,15 +59,11 @@ else
         else
             SOURCE_IMAGE=${1}
         fi
-        if [ -z "${2}" ]; then
-            CONTAINER_PREFIX="default"
-        else
+        if [ "${2}" ]; then
             CONTAINER_PREFIX="${2}"
         fi
-        if [ -z "${3}" ]; then
-            CMD_IN_CONTAINER=(/bin/bash)
-        else
-            CMD_IN_CONTAINER=(zooi ${3})
+        if [ "${3}" ]; then
+            CMD_IN_CONTAINER=(${3})
         fi
     fi
 fi
@@ -97,7 +91,7 @@ if [ ! "${CID}" ]; then
           -td \
           -p 3000:3000 \
           -v /home/$USER:/home/$USER \
-	      --mount source=rust-cargo-vol,target=/root/.cargo \
+	      --mount source=rust-cargo-vol,target=/root/rust \
           --name "${CONTAINER_NAME}" \
           ${ENV_VARIABLES} \
           "${SOURCE_IMAGE}" \
