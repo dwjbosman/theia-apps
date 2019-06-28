@@ -29,7 +29,6 @@ set -x
 SOURCE_IMAGE="theia_rust_image"
 CONTAINER_PREFIX="default"
 CURPATH=`pwd`
-CMD_IN_CONTAINER="sudo -i -u $USER bash --rcfile /root/bashrc"
 # Env variables explanation:
 # TERM: to change the default terminal from none to xterm with colors
 # TMUX: to forward the value of the existing TMUX variable to the container (so you can tell you are in tmux)
@@ -44,18 +43,23 @@ SCRIPTNAME=$(basename $BASH_SOURCE)
 
 echo "script is $SCRIPTNAME"
 
+EXECMODE="-ti"
 
 if [ $# -eq 0 ] ; then
     DUMMY=1
+    CMD_IN_CONTAINER=(sudo -i -u $USER bash --rcfile /root/bashrc)
 elif [ $# -eq 1 ] ; then
     CMD_IN_CONTAINER=(${1})
+    echo "cmd_in_container(ex_bash1): ${CMD_IN_CONTAINER[@]}"
 elif [ $# -eq 2 ] ; then
     CMD_IN_CONTAINER=(${2})
     SOURCE_IMAGE=${1}
+    echo "cmd_in_container(ex_bash2): ${CMD_IN_CONTAINER[@]}"
 elif [ $# -eq 3 ] ; then
     CMD_IN_CONTAINER=(${1})
     SOURCE_IMAGE=${2}
     CONTAINER_PREFIX="${2}"
+    echo "cmd_in_container(ex_bash3): ${CMD_IN_CONTAINER[@]}"
 fi
 
 if [ $SCRIPTNAME == "ex" ]; then
@@ -63,12 +67,13 @@ if [ $SCRIPTNAME == "ex" ]; then
     # passed
     ARGS=${@:1}
     echo "arguments: $ARGS"
-    #ARGS2=$(printf "%q" "$ARGS")
-    #echo "arguments: $ARGS2"
-    CMD_IN_CONTAINER="sudo -i -u $USER bash --rcfile /root/bashrc -ci $ARGS"
-    echo "arguments: $CMD_IN_CONTAINER"
+    CMD="sudo -i -u $USER bash --rcfile /root/bashrc -ci"
+    CMD_IN_CONTAINER=($CMD "$ARGS")
+    echo "cmd_in_container(ex): ${CMD_IN_CONTAINER[@]}"
 elif [ $SCRIPTNAME == "ex_theia" ]; then
-    CMD_IN_CONTAINER="sudo -i -u $USER bash --rcfile /root/bashrc -i /root/run.sh"
+    CMD_IN_CONTAINER=(sudo -i -u $USER bash --rcfile /root/bashrc -i /root/run.sh)
+    EXECMODE="-d"
+    echo "cmd_in_container(ex_theia): ${CMD_IN_CONTAINER[@]}"
 fi
 
 # Set up the container name
@@ -112,7 +117,5 @@ echo "Opening container: ${CONTAINER_NAME}"
 echo "Executing command: ${CMD_IN_CONTAINER[@]}"
 echo "Using environment variables: ${ENV_VARIABLES}"
 
-Y="bash -c "\ "ls -al"
-X=$Y
-docker exec -ti ${ENV_VARIABLES} ${CID} ${CMD_IN_CONTAINER}
+docker exec $EXECMODE ${ENV_VARIABLES} ${CID} "${CMD_IN_CONTAINER[@]}"
 

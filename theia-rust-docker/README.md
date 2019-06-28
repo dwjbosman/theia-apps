@@ -7,6 +7,8 @@ RUST\_CHANNEL=nightly make image
 ## Start Theia
 
 1. cd to a folder in your home dir.
+
+eg. cd to the example\_workspace folder.
   
 2. Start editor
 
@@ -22,9 +24,11 @@ This creates a container and mounts your home dir. It creates a user inside the 
 
 4. Run a single command in the container
 
-<pre>ex ...command...</pre>
+You can run a single command in side the container:
+
+<pre>ex "...command..."</pre>
 
 eg.
 
-<pre>ex cargo</pre>
+<pre>ex "cargo --list"</pre>
 
