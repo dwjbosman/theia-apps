@@ -79,9 +79,15 @@ fi
 # Set up the container name
 CONTAINER_NAME="${CONTAINER_PREFIX}-${SOURCE_IMAGE}-${USER}"
 echo "Searching for Docker container: ${CONTAINER_NAME}"
+
+CID=$(docker ps -q -f status=exited -f name=^/${CONTAINER_NAME}$)
+if [ "${CID}" ]; then
+    # exited, restart
+    docker restart \
+          ${CONTAINER_NAME} 
+fi
+
 CID=$(docker ps -q -f status=running -f name=^/${CONTAINER_NAME}$)
-
-
 if [ ! "${CID}" ]; then
       echo "Docker container doesn't exist yet; creating."
       echo "Using source Docker image: ${SOURCE_IMAGE}"
@@ -91,12 +97,13 @@ if [ ! "${CID}" ]; then
       WWW_UID=$(id -u www-data)
       WWW_GID=$(id -g www-data)
 
-      #security-opt seccomp=unconfined needed to avoid "Error disabling address
+      #security-opt needed to avoid "Error disabling address
       #space randomization: Operation not permitted" in gdb
 
       # Prepare the container
       docker run \
           -td \
+          --security-opt seccomp=unconfined \
           -p 3000:3000 \
           -v /home/$USER:/home/$USER \
 	      --mount source=rust-cargo-vol,target=/root/rust \

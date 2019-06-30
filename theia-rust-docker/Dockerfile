@@ -2,7 +2,7 @@
 FROM ubuntu:18.04
 
 RUN apt-get update -yq \
-    && apt-get install curl gnupg gcc g++ make python sudo git -yq 
+    && apt-get install curl gnupg gcc g++ gdb make python sudo git -yq 
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
     && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
@@ -15,8 +15,8 @@ ADD sudoers /etc/sudoers
 
 #install theia
 RUN mkdir /root/theia_rust_extension
-ADD next.package.json /root/theia_rust_extension/package.json
 RUN cd /root/theia_rust_extension && yarn global add node-gyp
+ADD next.package.json /root/theia_rust_extension/package.json
 RUN cd /root/theia_rust_extension && yarn --cache-folder /root/theia_rust_extension/ycache && rm -rf /root/theia_rust_extenstion/ycache
 RUN cd /root/theia_rust_extension && yarn theia build
 
