@@ -17,7 +17,14 @@ ADD sudoers /etc/sudoers
 RUN mkdir /root/theia_rust_extension
 RUN cd /root/theia_rust_extension && yarn global add node-gyp
 ADD next.package.json /root/theia_rust_extension/package.json
-RUN cd /root/theia_rust_extension && yarn --cache-folder /root/theia_rust_extension/ycache && rm -rf /root/theia_rust_extenstion/ycache
+RUN git clone https://github.com/eclipse/theia-cpp-extension.git /root/theia-cpp-extension
+RUN cp -R /root/theia-cpp-extension/packages /root/theia_rust_extension/.
+
+RUN cd /root/theia_rust_extension && yarn --cache-folder /root/theia_rust_extension/ycache 
+RUN cd /root/theia_rust_extension/packages/cpp-debug && yarn --cache-folder /root/theia_rust_extension/ycache 
+#&& rm -rf /root/theia_rust_extenstion/ycache
+
+##&& rm -rf /root/theia_rust_extenstion/ycache
 RUN cd /root/theia_rust_extension && yarn theia build
 
 # when creating a container a volume is mapped to /root/rust

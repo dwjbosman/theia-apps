@@ -3,6 +3,7 @@
     "dependencies": {
         "@theia/callhierarchy": "next",
         "@theia/core": "next",
+        "@theia/cpp-debug": "0.3.19",
         "@theia/editor": "next",
         "@theia/editorconfig": "next",
         "@theia/editor-preview": "next",
@@ -43,5 +44,8 @@
     },
     "devDependencies": {
         "@theia/cli": "next"
-    }
+    },
+    "workspaces": [
+      "packages/*"
+    ]
 }
