@@ -1,3 +1,4 @@
+#![warn(clippy::all)]
 // pretty.rs
 const COLORS: [&'static str;7] =
   ["red", "yellow", "pink", "green", "purple", "orange", "blue"];

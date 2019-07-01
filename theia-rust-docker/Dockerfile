@@ -2,7 +2,7 @@
 FROM ubuntu:18.04
 
 RUN apt-get update -yq \
-    && apt-get install curl gnupg gcc g++ gdb make python sudo git -yq 
+    && apt-get install curl gnupg build-essential gcc g++ gdb make python sudo git -yq 
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
     && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
@@ -31,7 +31,9 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > /tmp/sh.rustup.r
 #install language server dependencies for theia
 RUN . /root/rust/cargo/env && rustup toolchain install $rust_channel
 RUN . /root/rust/cargo/env && rustup default $rust_channel
-RUN . /root/rust/cargo/env && rustup component add rls rust-analysis rust-src
+RUN . /root/rust/cargo/env && rustup component add rust-src rust-docs rls rust-analysis rustfmt clippy
+
+
 RUN . /root/rust/cargo/env && cargo +$rust_channel install racer
 
 EXPOSE 3000

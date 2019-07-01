@@ -1,8 +1,6 @@
 {
     "private": true,
     "dependencies": {
-        "cdt-gdb-adapter": "next",
-        "cdt-gdb-vscode" :"next",
         "@theia/callhierarchy": "next",
         "@theia/core": "next",
         "@theia/editor": "next",
