@@ -10,7 +10,18 @@
           "type": "gdb",
           "program": "${workspaceFolder}/target/debug/adder",
           "arguments" : "",
-          "verbose": false,
+          "verbose": true,
+          "openGdbConsole": true,
+      },
+      {
+          "name" : "gcc debug",
+          "gdb": "gdb",
+          "request": "launch",
+          "type": "gdb",
+          "program": "${workspaceFolder}/tst/a.out",
+          "arguments" : "",
+          "verbose": true,
       }
+
   ]
 }
