@@ -32,3 +32,8 @@ eg.
 
 <pre>ex "cargo --list"</pre>
 
+## Example project
+
+A very simple rust example project is included in the example_project folder. It contains a build task and debug configuration which uses rust-gdb.
+
+
