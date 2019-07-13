@@ -13,6 +13,8 @@ RUN apt-get update -yq \
 #allow a user to become root in the container
 ADD sudoers /etc/sudoers
 
+ARG GITHUB_TOKEN
+
 #install theia
 RUN mkdir /root/theia_rust_extension
 RUN cd /root/theia_rust_extension && yarn global add node-gyp
