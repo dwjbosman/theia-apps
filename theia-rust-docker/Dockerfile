@@ -52,5 +52,6 @@ ADD run.sh /root/run.sh
 ADD bashrc /root/bashrc
 RUN chmod 755 /root \
     && chmod 755 /root/bashrc
+WORKDIR /root/theia_rust_extension
 CMD [ "yarn", "theia", "start", "/home/project", "--hostname=0.0.0.0" ]
 

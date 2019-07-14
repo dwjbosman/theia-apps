@@ -1,7 +1,5 @@
 .PHONY: get-files rm-files image clean-image run bash push pull
 
-
-
 HOST_NAME=$(shell hostname)
 
 REGISTRY=$(HOST_NAME):5000
@@ -10,17 +8,9 @@ DOCKER_IMAGE = theia_rust_image:latest
 DOCKER_CONTAINER = theia_rust_container
 BUILD_DIR = build-env
 
-
-
-identification:
-	echo "Created from repo, commit: " > $(BUILD_DIR)/identification.txt
-	git rev-parse --verify HEAD >> $(BUILD_DIR)/identification.txt
-
 # build the image using the cache
-# Call as:
-# RUST_CHANNEL=nightly make image
-image: identification
-	docker build --build-arg rust_channel=${RUST_CHANNEL} -t $(DOCKER_IMAGE) .
+image: 
+	docker build --build-arg rust_channel=nightly -t $(DOCKER_IMAGE) .
 
 # This empty directory '$(BUILD_DIR)' exists in git, with only an .gitignore file, set to ignore the entire contents of the dir.
 # This helps to avoid committing files in that dir to git.
@@ -35,7 +25,7 @@ get-files: rm-files
 	# Docker will automatically extract them, during image building, with the ADD command.
 	echo "none required"
 
-clean-image: rm-files get-files identification
+clean-image: rm-files get-files
 	docker build --no-cache --build-arg rust_channel=${RUST_CHANNEL} -t $(DOCKER_IMAGE) .
 
 
