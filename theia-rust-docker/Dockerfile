@@ -29,6 +29,7 @@ RUN cd /root/theia_rust_extension/packages/cpp-debug && yarn --cache-folder /roo
 #&& rm -rf /root/theia_rust_extenstion/ycache
 
 ##&& rm -rf /root/theia_rust_extenstion/ycache
+RUN free -h
 RUN cd /root/theia_rust_extension && yarn theia build
 
 # when creating a container a volume is mapped to /root/rust
