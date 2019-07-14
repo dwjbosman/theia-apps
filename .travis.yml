@@ -37,7 +37,8 @@ install:
   # this makes it possible to see output of the docker build as it unfolds:
   # from https://stackoverflow.com/questions/43918874/how-to-increase-no-activity-wait-time-in-travis-ci
   - "travis_wait 30 sleep 1800 &"
-  - docker build --build-arg "version=$NPM_TAG" --build-arg "NODE_VERSION=$NODE_VERSION" --build-arg "GITHUB_TOKEN=$GITHUB_TOKEN" --build-arg "NODE_OPTIONS=$NODE_OPTIONS" . -t "$IMAGE_TAG" --no-cache
+  - docker build --build-arg "version=$NPM_TAG" --build-arg "NODE_VERSION=$NODE_VERSION" --build-arg "GITHUB_TOKEN=$GITHUB_TOKEN" . -t "$IMAGE_TAG" --no-cache
+#  - docker build --build-arg "version=$NPM_TAG" --build-arg "NODE_VERSION=$NODE_VERSION" --build-arg "GITHUB_TOKEN=$GITHUB_TOKEN" --build-arg "NODE_OPTIONS=$NODE_OPTIONS" . -t "$IMAGE_TAG" --no-cache
   - docker tag "$IMAGE_TAG" "$IMAGE:$NPM_TAG"
   - docker run -d -p 0.0.0.0:4000:3000 "$IMAGE_TAG"
 
@@ -45,17 +46,6 @@ script: cd ../tests; yarn; yarn test-app-$IMAGE_NAME
 
 before_deploy:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-
-before_install:
-# shutdown services on Travis, which may have a memory impact
-# # show memory usage before and after shutdown of services
-  - sudo service --status-all
-  - sudo free -m -t
-  - sudo /etc/init.d/mysql stop
-  - sudo /etc/init.d/postgresql stop
-#  - sudo /etc/init.d/couchdb stop
-  - sudo /etc/init.d/redis-server stop
-  - sudo free -m -t
 
 deploy:
   provider: script
