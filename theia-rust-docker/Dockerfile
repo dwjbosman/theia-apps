@@ -14,10 +14,7 @@ RUN apt-get update -yq \
 ADD sudoers /etc/sudoers
 
 ARG GITHUB_TOKEN
-
-
 ARG NODE_OPTIONS="--max-old-space-size=4096"
-#ENV NODE_OPTIONS $node_options
 
 #install theia
 RUN mkdir /root/theia_rust_extension
@@ -26,15 +23,9 @@ ADD next.package.json /root/theia_rust_extension/package.json
 RUN git clone https://github.com/eclipse/theia-cpp-extension.git /root/theia-cpp-extension
 RUN cp -R /root/theia-cpp-extension/packages /root/theia_rust_extension/.
 
-
-#ENV NODE_MAX_MEM=3000
 RUN cd /root/theia_rust_extension && yarn --cache-folder /root/theia_rust_extension/ycache 
 RUN cd /root/theia_rust_extension/packages/cpp-debug && yarn --cache-folder /root/theia_rust_extension/ycache 
-#&& rm -rf /root/theia_rust_extenstion/ycache
 
-##&& rm -rf /root/theia_rust_extenstion/ycache
-RUN free -h
-RUN ps aux --sort -rss
 RUN cd /root/theia_rust_extension && yarn theia build
 
 # when creating a container a volume is mapped to /root/rust
@@ -61,3 +52,5 @@ ADD run.sh /root/run.sh
 ADD bashrc /root/bashrc
 RUN chmod 755 /root \
     && chmod 755 /root/bashrc
+CMD [ "yarn", "theia", "start", "/home/project", "--hostname=0.0.0.0" ]
+

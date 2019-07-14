@@ -1,6 +1,6 @@
 #!/bin/bash
 CURDIR=$(pwd)
-echo "container start dir: $CONTAINER_START_DIR"
+echo "container start path: $CONTAINER_START_PATH"
 echo "theia root dir: $CURDIR"
 env
 
