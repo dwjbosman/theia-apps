@@ -14,7 +14,7 @@ RUN apt-get update -yq \
 ADD sudoers /etc/sudoers
 
 ARG GITHUB_TOKEN
-
+#ARG NODE_OPTIONS
 #install theia
 RUN mkdir /root/theia_rust_extension
 RUN cd /root/theia_rust_extension && yarn global add node-gyp
@@ -23,7 +23,7 @@ RUN git clone https://github.com/eclipse/theia-cpp-extension.git /root/theia-cpp
 RUN cp -R /root/theia-cpp-extension/packages /root/theia_rust_extension/.
 
 #ENV NODE_OPTIONS "-–max_old_space_size=2048"
-ENV NODE_MAX_MEM=3000
+#ENV NODE_MAX_MEM=3000
 RUN cd /root/theia_rust_extension && yarn --cache-folder /root/theia_rust_extension/ycache 
 RUN cd /root/theia_rust_extension/packages/cpp-debug && yarn --cache-folder /root/theia_rust_extension/ycache 
 #&& rm -rf /root/theia_rust_extenstion/ycache
