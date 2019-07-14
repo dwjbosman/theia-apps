@@ -14,7 +14,7 @@ RUN apt-get update -yq \
 ADD sudoers /etc/sudoers
 
 ARG GITHUB_TOKEN
-#ARG NODE_OPTIONS
+ARG NODE_OPTIONS
 #install theia
 RUN mkdir /root/theia_rust_extension
 RUN cd /root/theia_rust_extension && yarn global add node-gyp
