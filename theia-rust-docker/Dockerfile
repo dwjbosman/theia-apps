@@ -4,29 +4,26 @@ FROM ubuntu:18.04
 RUN apt-get update -yq \
     && apt-get install curl gnupg build-essential gcc g++ gdb make python sudo git -yq 
 
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-    && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-
-RUN apt-get update -yq \
-    && apt-get install yarn -yq 
-
 #allow a user to become root in the container
 ADD sudoers /etc/sudoers
 
 ARG GITHUB_TOKEN
 ARG NODE_OPTIONS="--max-old-space-size=4096"
+ARG NODE_VERSION=10
+
+ADD install_node.sh /root/install_node.sh
+RUN bash /root/install_node.sh --version $NODE_VERSION
+ADD nvm_setup.sh /root/nvm_setup.sh
 
 #install theia
 RUN mkdir /root/theia_rust_extension
-RUN cd /root/theia_rust_extension && yarn global add node-gyp
+RUN . /root/nvm_setup.sh && cd /root/theia_rust_extension && yarn global add node-gyp
 ADD next.package.json /root/theia_rust_extension/package.json
 RUN git clone https://github.com/eclipse/theia-cpp-extension.git /root/theia-cpp-extension
 RUN cp -R /root/theia-cpp-extension/packages /root/theia_rust_extension/.
-
-RUN cd /root/theia_rust_extension && yarn --cache-folder /root/theia_rust_extension/ycache 
-RUN cd /root/theia_rust_extension/packages/cpp-debug && yarn --cache-folder /root/theia_rust_extension/ycache 
-
-RUN cd /root/theia_rust_extension && yarn theia build
+RUN . /root/nvm_setup.sh && cd /root/theia_rust_extension && yarn --cache-folder /root/theia_rust_extension/ycache 
+RUN . /root/nvm_setup.sh && cd /root/theia_rust_extension/packages/cpp-debug && yarn --cache-folder /root/theia_rust_extension/ycache 
+RUN . /root/nvm_setup.sh && cd /root/theia_rust_extension && yarn theia build
 
 # when creating a container a volume is mapped to /root/rust
 # to allow to make persistent changes
