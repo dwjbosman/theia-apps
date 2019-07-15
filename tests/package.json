@@ -3,8 +3,8 @@
   "name": "tests_for_theia-apps",
   "version": "0.0.1",
   "scripts": {
-    "test": "wdio wdio.conf.js --theia-port 4000",
-    "test-app-theia": "wdio wdio.theia-docker.conf.js --theia-port 4000",
+    "test": "wdio wdio.conf.js --theia-port 3000",
+    "test-app-theia": "wdio wdio.theia-docker.conf.js --theia-port 3000",
     "test-app-theia-full": "yarn test",
     "test-app-theia-go": "yarn test",
     "test-app-theia-java": "yarn test",
