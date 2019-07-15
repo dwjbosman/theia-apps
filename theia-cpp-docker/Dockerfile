@@ -22,6 +22,7 @@ RUN apt-get update && \
                        git \
                        gpg \
                        python \
+                       sudo \
                        wget \
                        xz-utils && \
     rm -rf /var/lib/apt/lists/* 
@@ -105,18 +106,23 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     rm -rf /var/lib/apt/lists/* 
 
 ## User account
-RUN adduser --disabled-password --gecos '' theia
-ADD settings.json /home/theia/.theia/
+#ADD settings.json /home/theia/.theia/
 
-RUN chmod g+rw /home && \
-    mkdir -p /home/project && \
-    chown -R theia:theia /home/theia && \
-    chown -R theia:theia /home/project;
+#RUN chmod g+rw /home && \
+#    mkdir -p /home/project && \
+#    chown -R theia:theia /home/theia && \
+#    chown -R theia:theia /home/project;
 
 # Theia application
+#USER theia
+RUN mkdir /root/theia_cpp_extension
 
-USER theia
-WORKDIR /home/theia
+ENV SHELL /bin/bash
+# script to start theia
+ADD run.sh /root/run.sh
+# script to set environment
+RUN chmod 755 /root
+WORKDIR /root/theia_cpp_extension
 ADD $version.package.json ./package.json
 
 RUN if [ "$strip" = "true" ]; then \
@@ -134,8 +140,13 @@ yarn --cache-folder ./ycache && rm -rf ./ycache && \
      NODE_OPTIONS="--max_old_space_size=4096" yarn theia build \
 ;fi
 
+ADD sudoers /etc/sudoers
+
+ADD bashrc /root/bashrc
+ 
 EXPOSE 3000
 ENV SHELL /bin/bash
 
-ENTRYPOINT [ "node", "/home/theia/src-gen/backend/main.js", "/home/project", "--hostname=0.0.0.0" ]
+CMD [ "node", "/root/theia_cpp_extension/src-gen/backend/main.js", "/home/project", "--hostname=0.0.0.0" ]
+#CMD [ "yarn", "theia", "start", "/home/project", "--hostname=0.0.0.0" ]
 # ENTRYPOINT [ "yarn", "theia", "start", "/home/project", "--hostname=0.0.0.0" ] 
