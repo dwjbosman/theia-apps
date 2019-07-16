@@ -12,14 +12,13 @@ SHA=`git rev-parse --verify HEAD`
 git config user.name "Travis CI"
 git config user.email "$COMMIT_AUTHOR_EMAIL"
 
-git fetch --depth 1 origin bugs:bugs
-git checkout bugs
+git fetch --depth 1 origin $TARGET_BRANCH:$TARGET_BRANCH
+git checkout $TARGET_BRANCH
+#empty the branch
+git rm -r .
 
+#add all png files
 find . -name '*.png' | xargs git add
-
-find . -name '*.png'
-git status
-
 
 # If there are no changes to the compiled out (e.g. this is a README update) then just bail.
 if git diff --staged --quiet; then
@@ -28,6 +27,5 @@ if git diff --staged --quiet; then
 fi
 
 git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
-
 git remote add origin-results ${AUTH_REPO} > /dev/null 2>&1
-git push --quiet --set-upstream origin-results bugs 
+git push --quiet --set-upstream origin-results $TARGET_BRANCH
