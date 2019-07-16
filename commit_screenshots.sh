@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 set -e # Exit with nonzero exit code if anything fails
 
 SOURCE_BRANCH="master"
@@ -13,6 +14,8 @@ SHA=`git rev-parse --verify HEAD`
 # cd out
 git config user.name "Travis CI"
 git config user.email "$COMMIT_AUTHOR_EMAIL"
+
+git checkout -b bugs
 
 find . -name '*.png' | xargs git add
 
@@ -29,9 +32,11 @@ fi
 # Commit the "changes", i.e. the new version.
 # The delta will show diffs between new and old versions.
 # git add -A .
-git commit -m "Deploy to GitHub Pages: ${SHA}"
+git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
 
-git branch -r
+#git remote add origin-pages https://${GH_TOKEN}@github.com/dwjbosman/theia-apps.git > /dev/null 2>&1
+git remote add origin-results https://github.com/dwjbosman/theia-apps.git
+git push --quiet --set-upstream origin-results bugs 
 
 # Now that we're all set up, we can push.
 git push $SSH_REPO $TARGET_BRANCH
