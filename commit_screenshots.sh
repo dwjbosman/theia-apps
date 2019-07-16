@@ -16,6 +16,10 @@ git config user.email "$COMMIT_AUTHOR_EMAIL"
 
 find . -name '*.png' | xargs git add
 
+find . -name '*.png'
+git status
+
+
 # If there are no changes to the compiled out (e.g. this is a README update) then just bail.
 if git diff --quiet; then
     echo "No changes to the output on this push; exiting."
