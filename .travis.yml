@@ -44,9 +44,9 @@ install:
 #script: cd ../tests; yarn; yarn test-app-$IMAGE_NAME
 
 script: pwd
-#script: ./commit_screenshots.sh
 script: cd /home/travis/build/dwjbosman/theia-apps && convert -size 32x32 xc:white empty.png
-script: /home/travis/build/dwjbosman/theia-apps/commit_screenshots.sh
+script: cd /home/travis/build/dwjbosman/theia-apps && find . -name "*.png"
+script: cd /home/travis/build/dwjbosman/theia-apps && ./commit_screenshots.sh
 
 
 #before_deploy:
