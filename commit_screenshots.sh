@@ -1,17 +1,16 @@
 #!/bin/bash
-#set -x
+set -x
 set -e # Exit with nonzero exit code if anything fails
 
 SOURCE_BRANCH="master"
-TARGET_BRANCH="screenshot_test"
+TARGET_BRANCH="bugs"
 
 # Save some useful information
 REPO=`git config remote.origin.url`
-SSH_REPO=${REPO/https:\/\/github.com\//git@github.com:}
+GITHUB_TOKEN2="blaat"
+AUTH_REPO=${REPO/https:\/\/github.com\//https://${GITHUB_TOKEN2}@github.com:}
 SHA=`git rev-parse --verify HEAD`
 
-# Now let's go have some fun with the cloned repo
-# cd out
 git config user.name "Travis CI"
 git config user.email "$COMMIT_AUTHOR_EMAIL"
 
@@ -30,11 +29,7 @@ if git diff --staged --quiet; then
     exit 0
 fi
 
-# Commit the "changes", i.e. the new version.
-# The delta will show diffs between new and old versions.
-# git add -A .
 git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
 
-git remote add origin-results https://${GITHUB_TOKEN}@github.com/dwjbosman/theia-apps.git > /dev/null 2>&1
-#git remote add origin-results https://github.com/dwjbosman/theia-apps.git
+git remote add origin-results ${AUTH_REPO} > /dev/null 2>&1
 git push --quiet --set-upstream origin-results bugs 
