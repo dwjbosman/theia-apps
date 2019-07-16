@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 set -e # Exit with nonzero exit code if anything fails
 
 SOURCE_BRANCH="master"
@@ -7,8 +6,7 @@ TARGET_BRANCH="bugs"
 
 # Save some useful information
 REPO=`git config remote.origin.url`
-GITHUB_TOKEN2="blaat"
-AUTH_REPO=${REPO/https:\/\/github.com\//https://${GITHUB_TOKEN2}@github.com:}
+AUTH_REPO=${REPO/https:\/\/github.com\//https://${GITHUB_TOKEN}@github.com/}
 SHA=`git rev-parse --verify HEAD`
 
 git config user.name "Travis CI"
