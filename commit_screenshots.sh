@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+#set -x
 set -e # Exit with nonzero exit code if anything fails
 
 SOURCE_BRANCH="master"
@@ -34,6 +34,6 @@ fi
 # git add -A .
 git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
 
-git remote add origin-pages https://${GH_TOKEN}@github.com/dwjbosman/theia-apps.git > /dev/null 2>&1
+git remote add origin-results https://${GIT_TOKEN}@github.com/dwjbosman/theia-apps.git > /dev/null 2>&1
 #git remote add origin-results https://github.com/dwjbosman/theia-apps.git
 git push --quiet --set-upstream origin-results bugs 
