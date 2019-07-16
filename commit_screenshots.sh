@@ -34,9 +34,6 @@ fi
 # git add -A .
 git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
 
-#git remote add origin-pages https://${GH_TOKEN}@github.com/dwjbosman/theia-apps.git > /dev/null 2>&1
-git remote add origin-results https://github.com/dwjbosman/theia-apps.git
+git remote add origin-pages https://${GH_TOKEN}@github.com/dwjbosman/theia-apps.git > /dev/null 2>&1
+#git remote add origin-results https://github.com/dwjbosman/theia-apps.git
 git push --quiet --set-upstream origin-results bugs 
-
-# Now that we're all set up, we can push.
-git push $SSH_REPO $TARGET_BRANCH
