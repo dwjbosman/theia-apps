@@ -44,7 +44,7 @@ install:
 #script: cd ../tests; yarn; yarn test-app-$IMAGE_NAME
 
 deploy:
-    script: ./create_dummy_screenshot.sh
+    script: convert -size 32x32 xc:white empty.png
     script: ./commit_screenshots.sh
 
 #before_deploy:
