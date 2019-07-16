@@ -2,7 +2,7 @@
 set -e # Exit with nonzero exit code if anything fails
 
 SOURCE_BRANCH="master"
-TARGET_BRANCH="bugs"
+TARGET_BRANCH="screenshot_test"
 
 # Save some useful information
 REPO=`git config remote.origin.url`
@@ -34,5 +34,4 @@ git commit -m "Deploy to GitHub Pages: ${SHA}"
 git branch -r
 
 # Now that we're all set up, we can push.
-git push $SSH_REPO 
-#$TARGET_BRANCH
+git push $SSH_REPO $TARGET_BRANCH
