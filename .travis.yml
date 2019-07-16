@@ -43,13 +43,9 @@ install:
 
 #script: cd ../tests; yarn; yarn test-app-$IMAGE_NAME
 
-deploy:
-    provider: script
+before_deploy:
     script: convert -size 32x32 xc:white empty.png
     script: ./commit_screenshots.sh
-    on:
-      branch: bugs
-    skip_cleanup: true
 
 
 #before_deploy:
