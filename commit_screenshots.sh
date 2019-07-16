@@ -21,7 +21,7 @@ git status
 
 
 # If there are no changes to the compiled out (e.g. this is a README update) then just bail.
-if git diff --quiet; then
+if git diff --staged --quiet; then
     echo "No changes to the output on this push; exiting."
     exit 0
 fi
