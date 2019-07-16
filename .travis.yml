@@ -44,8 +44,13 @@ install:
 #script: cd ../tests; yarn; yarn test-app-$IMAGE_NAME
 
 deploy:
+    provider: script
     script: convert -size 32x32 xc:white empty.png
     script: ./commit_screenshots.sh
+    on:
+      branch: bugs
+    skip_cleanup: true
+
 
 #before_deploy:
 #  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
