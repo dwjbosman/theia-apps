@@ -15,7 +15,8 @@ SHA=`git rev-parse --verify HEAD`
 git config user.name "Travis CI"
 git config user.email "$COMMIT_AUTHOR_EMAIL"
 
-git checkout --depth 1 --track origin/bugs
+git fetch --depth 1 origin bugs:bugs
+git checkout bugs
 
 find . -name '*.png' | xargs git add
 
