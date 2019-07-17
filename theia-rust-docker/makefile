@@ -23,7 +23,7 @@ rm-files:
 get-files: rm-files
 	# Add these archived files from external sources to the current directory.
 	# Docker will automatically extract them, during image building, with the ADD command.
-	echo "none required"
+	git clone git://repo.or.cz/openocd.git $(BUILD_DIR)/openocd
 
 clean-image: rm-files get-files
 	docker build --no-cache --build-arg rust_channel=${RUST_CHANNEL} -t $(DOCKER_IMAGE) .

@@ -41,6 +41,12 @@ RUN . /root/rust/cargo/env && rustup component add rust-src rust-docs rls rust-a
 
 RUN . /root/rust/cargo/env && cargo +$rust_channel install racer
 
+ADD build-env/openocd /root/openocd
+
+RUN apt-get update -yq \
+    && apt-get install libtool autotools-dev automake pkg-config gdb-multiarch qemu-system-arm -yq
+RUN cd /root/openocd && ./bootstrap && ./configure && make && make install
+ 
 EXPOSE 3000
 ENV SHELL /bin/bash
 # script to start theia
