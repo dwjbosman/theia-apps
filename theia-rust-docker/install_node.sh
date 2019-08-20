@@ -14,8 +14,8 @@ if [ "$1" = '--version' ]; then
 	INSTALL_NODE_VER=$2
 fi
 
-echo "==> Make sure bash profile exists and writable"
-touch ~/.bash_profile 
+# don't let nvm change bashrc
+cp ~/.bashrc ~/.bashrc_backup
 
 echo "==> Installing node version manager version $INSTALL_NVM_VER"
 # Removed if already installed
@@ -34,9 +34,6 @@ nvm install $INSTALL_NODE_VER
 echo "==> Make this version system default"
 nvm alias default $INSTALL_NODE_VER
 nvm use default
-
-#echo -e "==> Update npm to latest version, if this stuck then terminate (CTRL+C) the execution"
-#npm install -g npm
 
 echo "==> Installing Yarn package manager"
 rm -rf ~/.yarn
@@ -61,5 +58,9 @@ nvm ls
 
 nvm cache clear
 echo "==> Please Logout and Login back to take changes effect"
+
+# don't let nvm change bashrc
+cp ~/.bashrc_backup ~/.bashrc
+rm ~/.bashrc_backup
 
 # Tested on Ubuntu, MacOS

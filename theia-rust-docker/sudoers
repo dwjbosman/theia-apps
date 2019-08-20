@@ -10,6 +10,7 @@ Defaults	env_reset
 Defaults	mail_badpass
 Defaults	secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
 Defaults    env_keep += "CONTAINER_START_PATH"
+Defaults    env_keep += "THEIA_RUST_APP_PATH"
 
 # Host alias specification
 
@@ -28,4 +29,4 @@ root	ALL=(ALL:ALL) ALL
 
 # See sudoers(5) for more information on "#include" directives:
 
-#includedir /etc/sudoers.d
+# includedir /etc/sudoers.d

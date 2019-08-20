@@ -3,7 +3,7 @@
     "theia": {
         "frontend": {
             "config": {
-                "applicationName": "Theia Go Example",
+                "applicationName": "Theia Dart Example",
                 "preferences": {
                     "files.enableTrash": false
                 }
@@ -36,6 +36,6 @@
     },
     "adapterDir": "plugins",
     "adapters": {
-        "vscode-go": "https://ms-vscode.gallery.vsassets.io/_apis/public/gallery/publisher/ms-vscode/extension/Go/0.11.4/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
+        "dart-code": "https://ms-vscode.gallery.vsassets.io/_apis/public/gallery/publisher/Dart-Code/extension/dart-code/3.2.1/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"
     }
 }

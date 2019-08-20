@@ -1,15 +1,21 @@
 {
     "private": true,
+    "theia": {
+        "frontend": {
+            "config": {
+                "applicationName": "Theia Rust Example"
+            }
+        }
+    },
     "dependencies": {
-        "@theia/callhierarchy": "next",
         "@theia/core": "next",
-        "@theia/cpp-debug": "0.3.19",
+        "@theia/cpp-debug": "*",
         "@theia/editor": "next",
         "@theia/editorconfig": "next",
         "@theia/editor-preview": "next",
         "@theia/file-search": "next",
         "@theia/filesystem": "next",
-        "@theia/git": "next",        
+        "@theia/git": "next",
         "@theia/getting-started": "next",
         "@theia/json": "next",
         "@theia/keymaps": "next",
@@ -37,10 +43,7 @@
         "@theia/textmate-grammars": "next",
         "@theia/userstorage": "next",
         "@theia/variable-resolver": "next",
-        "@theia/workspace": "next",
-        "theia-yang-extension": "next",
-
-        "typescript": "latest"
+        "@theia/workspace": "next"
     },
     "devDependencies": {
         "@theia/cli": "next"

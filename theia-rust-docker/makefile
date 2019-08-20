@@ -8,9 +8,13 @@ DOCKER_IMAGE = theia_rust_image:latest
 DOCKER_CONTAINER = theia_rust_container
 BUILD_DIR = build-env
 
+ifeq ($(RUST_CHANNEL),)
+RUST_CHANNEL := nightly-2019-08-01
+endif
+
 # build the image using the cache
 image: 
-	docker build --build-arg rust_channel=nightly -t $(DOCKER_IMAGE) .
+	docker build --build-arg rust_channel=$(RUST_CHANNEL) -t $(DOCKER_IMAGE) .
 
 # This empty directory '$(BUILD_DIR)' exists in git, with only an .gitignore file, set to ignore the entire contents of the dir.
 # This helps to avoid committing files in that dir to git.
@@ -23,7 +27,7 @@ rm-files:
 get-files: rm-files
 	# Add these archived files from external sources to the current directory.
 	# Docker will automatically extract them, during image building, with the ADD command.
-	git clone git://repo.or.cz/openocd.git $(BUILD_DIR)/openocd
+	echo "none required"
 
 clean-image: rm-files get-files
 	docker build --no-cache --build-arg rust_channel=${RUST_CHANNEL} -t $(DOCKER_IMAGE) .

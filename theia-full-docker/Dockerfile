@@ -139,6 +139,18 @@ RUN apt-get -y install ruby ruby-dev zlib1g-dev && \
     gem install solargraph
 
 
+# Rust
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:$PATH 
+
+ENV USER root
+
+RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y \
+    && rustup update \
+    && rustup component add rls rust-src rust-analysis
+    
+
 ## User account
 RUN adduser --disabled-password --gecos '' theia && \
     adduser theia sudo && \
@@ -146,6 +158,12 @@ RUN adduser --disabled-password --gecos '' theia && \
 
 RUN chmod g+rw /home && \
     mkdir -p /home/project && \
+    mkdir -p /usr/local/cargo && \
+    mkdir -p /usr/local/go && \
+    mkdir -p /usr/local/go-packages && \
+    chown -R theia:theia /usr/local/cargo && \
+    chown -R theia:theia /usr/local/go && \
+    chown -R theia:theia /usr/local/go-packages && \
     chown -R theia:theia /home/theia && \
     chown -R theia:theia /home/project;
 
@@ -163,5 +181,8 @@ RUN yarn --cache-folder ./ycache && rm -rf ./ycache && \
     NODE_OPTIONS="--max_old_space_size=4096" yarn theia build
 EXPOSE 3000
 ENV SHELL /bin/bash
+
+ENV GOPATH=/home/project
+ENV PATH=$PATH:$GOPATH/bin
 
 ENTRYPOINT [ "yarn", "theia", "start", "/home/project", "--hostname=0.0.0.0" ]

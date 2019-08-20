@@ -1,5 +1,15 @@
 {
     "private": true,
+    "theia": {
+        "frontend": {
+            "config": {
+                "applicationName": "Theia JavaScript/TypeScript Example",
+                "preferences": {
+                    "files.enableTrash": false
+                }
+            }
+        }
+    },
     "dependencies": {
         "@theia/callhierarchy": "latest",
         "@theia/debug": "latest",
@@ -18,6 +28,7 @@
         "@theia/search-in-workspace": "latest",
         "@theia/terminal": "latest",
         "@theia/textmate-grammars": "latest",
+        "@theia/tslint": "latest",
         "@theia/typescript": "latest",
         "typescript": "latest"
     },
