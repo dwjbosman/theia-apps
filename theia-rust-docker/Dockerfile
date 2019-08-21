@@ -3,7 +3,7 @@ FROM ubuntu:18.04
 
 RUN apt-get update -yq \
     && apt-get install curl gnupg build-essential gcc g++ gdb make python sudo git \
-    apt-get install libtool autotools-dev automake pkg-config gdb-multiarch qemu-system-arm -yq
+    libtool autotools-dev automake pkg-config gdb-multiarch qemu-system-arm -yq
 
 # allow a user to become root in the container
 ADD sudoers /etc/sudoers
