@@ -44,7 +44,8 @@ RUN . /root/rust/cargo/env && rustup component add rust-src rust-docs rls rust-a
 RUN . /root/rust/cargo/env && cargo +$rust_channel install racer
 
 ADD build-env/openocd /root/openocd
-RUN cd /root/openocd && ./bootstrap && ./configure && make && make install
+RUN apt-get install libusb-1.0-0-dev -yq
+RUN cd /root/openocd && ./bootstrap && ./configure --enable-stlink && make && make install
 
 EXPOSE 3000
 ENV SHELL /bin/bash

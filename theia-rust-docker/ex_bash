@@ -148,12 +148,16 @@ if [ ! "${CID}" ]; then
       # security-opt needed to avoid "Error disabling address
       # space randomization: Operation not permitted" in gdb
 
+      # privileged required to access usb devices for openocd
+
       # Prepare the container
       docker run \
           -td \
           --security-opt seccomp=unconfined \
+          --privileged \
           -p 3000:3000 \
           -v /home/$USER:/home/$USER \
+          -v /dev/bus/usb:/dev/bus/usb \
 	      --mount source=rust-cargo-vol,target=/root/rust \
           --name "${CONTAINER_NAME}" \
           ${ENV_VARIABLES} \
@@ -164,7 +168,7 @@ if [ ! "${CID}" ]; then
           -ti \
           ${ENV_VARIABLES} \
           ${CONTAINER_NAME} \
-          /bin/bash -c "addgroup --gid $USER_GID $USER >/dev/null 2>&1 && adduser --no-create-home --disabled-password --gecos \"\" --uid $USER_UID --gid $USER_GID $USER >/dev/null 2>&1 && usermod -a -G sudo $USER"
+          /bin/bash -c "addgroup --gid $USER_GID $USER >/dev/null 2>&1 && adduser --no-create-home --disabled-password --gecos \"\" --uid $USER_UID --gid $USER_GID $USER >/dev/null 2>&1 && usermod -a -G sudo $USER && usermod -aG plugdev $USER"
 
       CID=$(docker ps -q -f status=running -f name=^/${CONTAINER_NAME}$)
 fi
