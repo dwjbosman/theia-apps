@@ -47,6 +47,7 @@ ARG rust_channel=nightly-2019-08-01
 # install language server dependencies for theia
 RUN . /root/rust/cargo/env && rustup toolchain install $rust_channel
 RUN . /root/rust/cargo/env && rustup default $rust_channel
+
 RUN . /root/rust/cargo/env && rustup component add rust-src rust-docs rls rust-analysis rustfmt clippy llvm-tools-preview
 RUN . /root/rust/cargo/env && cargo +$rust_channel install racer
 
@@ -56,7 +57,6 @@ RUN . /root/rust/cargo/env && rustup target add thumbv7em-none-eabi
 RUN . /root/rust/cargo/env && rustup target add thumbv7em-none-eabihf
 RUN . /root/rust/cargo/env && cargo +$rust_channel install cargo-binutils
 RUN . /root/rust/cargo/env && cargo +$rust_channel install cargo-generate
-#RUN . /root/rust/cargo/env && rustup component add llvm-tools-preview
 
 
 ADD build-env/openocd /root/openocd
