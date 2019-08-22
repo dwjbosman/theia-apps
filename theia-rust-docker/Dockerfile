@@ -2,8 +2,16 @@
 FROM ubuntu:18.04
 
 RUN apt-get update -yq \
-    && apt-get install curl gnupg build-essential gcc g++ gdb make python sudo git \
-    libtool autotools-dev automake pkg-config gdb-multiarch qemu-system-arm -yq
+    && apt-get install -yq \
+    curl gnupg build-essential gcc g++ gdb make python sudo git \
+    # for building openocd
+    libtool autotools-dev automake pkg-config \
+    # for openocde stlink 
+    libusb-1.0-0-dev \
+    # for embedded dev
+    gdb-multiarch qemu-system-arm \
+    # for cargo-generate
+    libssl1.0-dev 
 
 # allow a user to become root in the container
 ADD sudoers /etc/sudoers
@@ -39,12 +47,19 @@ ARG rust_channel=nightly-2019-08-01
 # install language server dependencies for theia
 RUN . /root/rust/cargo/env && rustup toolchain install $rust_channel
 RUN . /root/rust/cargo/env && rustup default $rust_channel
-RUN . /root/rust/cargo/env && rustup component add rust-src rust-docs rls rust-analysis rustfmt clippy
-
+RUN . /root/rust/cargo/env && rustup component add rust-src rust-docs rls rust-analysis rustfmt clippy llvm-tools-preview
 RUN . /root/rust/cargo/env && cargo +$rust_channel install racer
 
+RUN . /root/rust/cargo/env && rustup target add thumbv6m-none-eabi
+RUN . /root/rust/cargo/env && rustup target add thumbv7m-none-eabi
+RUN . /root/rust/cargo/env && rustup target add thumbv7em-none-eabi
+RUN . /root/rust/cargo/env && rustup target add thumbv7em-none-eabihf
+RUN . /root/rust/cargo/env && cargo +$rust_channel install cargo-binutils
+RUN . /root/rust/cargo/env && cargo +$rust_channel install cargo-generate
+#RUN . /root/rust/cargo/env && rustup component add llvm-tools-preview
+
+
 ADD build-env/openocd /root/openocd
-RUN apt-get install libusb-1.0-0-dev -yq
 RUN cd /root/openocd && ./bootstrap && ./configure --enable-stlink && make && make install
 
 EXPOSE 3000
