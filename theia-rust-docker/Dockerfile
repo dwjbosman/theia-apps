@@ -12,7 +12,6 @@ RUN apt-get update -yq \
     gdb-multiarch qemu-system-arm \
     # for cargo-generate
     libssl1.0-dev 
-
 # allow a user to become root in the container
 ADD sudoers /etc/sudoers
 
@@ -37,27 +36,33 @@ RUN . /root/nvm_setup.sh && cd $THEIA_RUST_APP_PATH && yarn theia build
 
 # when creating a container a volume is mapped to /root/rust
 # to allow to make persistent changes
+ENV RUST_HOME /root/rust
 ENV RUSTUP_HOME /root/rust/rustup
 ENV CARGO_HOME /root/rust/cargo
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > /tmp/sh.rustup.rs && sh /tmp/sh.rustup.rs -y
+# ensure that a custom user who's member of the 'rust' group
+# is able to modify CARGO_HOME dir
+RUN mkdir -p $RUST_HOME && \
+    groupadd -g 500 rust && \
+    chown root:rust $RUST_HOME && \
+    chmod g+rwxs $RUST_HOME 
+RUN umask 0002 && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > /tmp/sh.rustup.rs && sh /tmp/sh.rustup.rs -y
 
 ARG rust_channel=nightly-2019-08-01
 
 # install language server dependencies for theia
-RUN . /root/rust/cargo/env && rustup toolchain install $rust_channel
-RUN . /root/rust/cargo/env && rustup default $rust_channel
+RUN . /root/rust/cargo/env && umask 0002 && rustup toolchain install $rust_channel
+RUN . /root/rust/cargo/env && umask 0002 && rustup default $rust_channel
 
-RUN . /root/rust/cargo/env && rustup component add rust-src rust-docs rls rust-analysis rustfmt clippy llvm-tools-preview
-RUN . /root/rust/cargo/env && cargo +$rust_channel install racer
+RUN . /root/rust/cargo/env && umask 0002 && rustup component add rust-src rust-docs rls rust-analysis rustfmt clippy llvm-tools-preview
+RUN . /root/rust/cargo/env && umask 0002 && cargo +$rust_channel install racer
 
-RUN . /root/rust/cargo/env && rustup target add thumbv6m-none-eabi
-RUN . /root/rust/cargo/env && rustup target add thumbv7m-none-eabi
-RUN . /root/rust/cargo/env && rustup target add thumbv7em-none-eabi
-RUN . /root/rust/cargo/env && rustup target add thumbv7em-none-eabihf
-RUN . /root/rust/cargo/env && cargo +$rust_channel install cargo-binutils
-RUN . /root/rust/cargo/env && cargo +$rust_channel install cargo-generate
-
+RUN . /root/rust/cargo/env && umask 0002 && rustup target add thumbv6m-none-eabi
+RUN . /root/rust/cargo/env && umask 0002 && rustup target add thumbv7m-none-eabi
+RUN . /root/rust/cargo/env && umask 0002 && rustup target add thumbv7em-none-eabi
+RUN . /root/rust/cargo/env && umask 0002 && rustup target add thumbv7em-none-eabihf
+RUN . /root/rust/cargo/env && umask 0002 && cargo +$rust_channel install cargo-binutils
+RUN . /root/rust/cargo/env && umask 0002 && cargo +$rust_channel install cargo-generate
 
 ADD build-env/openocd /root/openocd
 RUN cd /root/openocd && ./bootstrap && ./configure --enable-stlink && make && make install
