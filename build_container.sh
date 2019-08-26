@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 # this script is called by Travis to build the Docker image
 NPM_TAG=$1

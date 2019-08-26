@@ -1,6 +1,5 @@
 #!/bin/bash
-set -ex
-
+set -e
 # This script is called by Travis during the install step.
 # It returns 1 if no files where changed. In that case
 # no further building/test is required for this image
