@@ -10,6 +10,7 @@
     "dependencies": {
         "@theia/core": "next",
         "@theia/cpp-debug": "*",
+        "@theia/cortex-debug": "*",
         "@theia/editor": "next",
         "@theia/editorconfig": "next",
         "@theia/editor-preview": "next",
