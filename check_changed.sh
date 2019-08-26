@@ -12,7 +12,7 @@ git fetch
 
 cd "$IMAGE_NAME-docker"
 
-CHANGED_FILES=$(git diff --name-status HEAD~1...$TRAVIS_BRANCH .)
+CHANGED_FILES=$(git diff --name-status $TRAVIS_BRANCH~1...$TRAVIS_BRANCH .)
 if [ -z "$CHANGED_FILES" ]
 then
     # nothing changed, skip building
