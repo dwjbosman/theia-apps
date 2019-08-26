@@ -30,7 +30,7 @@ git config user.email "$COMMIT_AUTHOR_EMAIL"
 git fetch --depth 1 origin $TARGET_BRANCH:$TARGET_BRANCH
 git checkout $TARGET_BRANCH
 
-# Empty the branch, ignore error if alrady empty
+# Empty the branch, ignore error if already empty
 git rm -r . || true
 
 # Add all png files
