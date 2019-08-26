@@ -1,7 +1,10 @@
 #!/bin/bash
 set -ex
 
-# this script is called by Travis to build the Docker image
+# This script is called by Travis during the install step.
+# It returns 1 if no files where changed. In that case
+# no further building/test is required for this image
+
 IMAGE_NAME=$1
 
 git remote set-branches --add origin $TRAVIS_BRANCH
