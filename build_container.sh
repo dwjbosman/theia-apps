@@ -6,6 +6,8 @@ NPM_TAG=$1
 IMAGE_NAME=$2
 NODEVERSION=$3
 
+cd "$IMAGE_NAME-docker"
+
 IMAGE="theiaide/$IMAGE_NAME"
 IMAGE_TAG="$IMAGE":$(npm view "@theia/core@$NPM_TAG" version)
 echo $IMAGE_TAG

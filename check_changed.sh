@@ -13,8 +13,8 @@ CHANGED_FILES=$(git diff --name-status HEAD...$TRAVIS_BRANCH .)
 if [ -z "$CHANGED_FILES" ]
 then
     # nothing changed, skip building
-    exit 0    
+    exit 1 
 fi
 echo "There were changes in $IMAGE_NAME"
 
-exit 1
+exit 0
