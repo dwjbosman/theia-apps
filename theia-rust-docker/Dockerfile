@@ -32,6 +32,7 @@ RUN git clone https://github.com/eclipse/theia-cpp-extension.git /root/theia-cpp
 RUN cp -R /root/theia-cpp-extension/packages $THEIA_RUST_APP_PATH/.
 RUN . /root/nvm_setup.sh && cd $THEIA_RUST_APP_PATH && yarn --cache-folder $THEIA_RUST_APP_PATH/ycache 
 RUN . /root/nvm_setup.sh && cd $THEIA_RUST_APP_PATH/packages/cpp-debug && yarn --cache-folder $THEIA_RUST_APP_PATH/ycache 
+RUN . /root/nvm_setup.sh && cd $THEIA_RUST_APP_PATH/packages/cortex-debug && yarn --cache-folder $THEIA_RUST_APP_PATH/ycache 
 RUN . /root/nvm_setup.sh && cd $THEIA_RUST_APP_PATH && yarn theia build
 
 # when creating a container a volume is mapped to /root/rust

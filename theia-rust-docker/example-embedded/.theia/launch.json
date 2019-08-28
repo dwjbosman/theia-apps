@@ -3,8 +3,17 @@
   // Hover to view descriptions of existing attributes.
   "version": "0.2.0",
   "configurations": [
+
       {
-          "name" : "rust debug",
+          "cwd": "${workspaceRoot}",
+          "executable": "./bin/executable.elf",
+          "name": "Debug Microcontroller",
+          "request": "launch",
+          "type": "cortex-debug",
+          "servertype": "openocd"
+      },
+      {
+          "name" : "rust debugX",
           "gdb": "/root/rust/cargo/bin/rust-gdb",
           "request": "launch",
           "type": "gdb",
@@ -21,7 +30,26 @@
           "program": "${workspaceFolder}/tst/a.out",
           "arguments" : "",
           "verbose": true,
-      }
-
+      },
+      {
+          "name" : "rust qemu embedded debug",
+          "gdb": "/root/rust/cargo/bin/rust-gdb",
+          "request": "launch",
+          "type": "gdb",
+          "program": "${workspaceFolder}/target/thumbv7m-none-eabi/debug/example-embedded",
+          "arguments" : "",
+          "verbose": true,
+          "openGdbConsole": true,
+      },
+      {
+          "name" : "rust qemu embedded debug2",
+          "gdb": "gdb-multiarch",
+          "request": "launch",
+          "type": "gdb",
+          "program": "${workspaceFolder}/target/thumbv7m-none-eabi/debug/example-embedded",
+          "arguments" : "",
+          "verbose": true,
+          "openGdbConsole": true,
+      },
   ]
 }
