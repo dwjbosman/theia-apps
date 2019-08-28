@@ -25,4 +25,3 @@ source /root/nvm_setup.sh
 # group writeable
 umask 002
 source $CARGO_HOME/env
-# source /root/rust/cargo/env
