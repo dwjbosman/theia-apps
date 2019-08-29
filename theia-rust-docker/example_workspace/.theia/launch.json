@@ -21,7 +21,20 @@
           "program": "${workspaceFolder}/tst/a.out",
           "arguments" : "",
           "verbose": true,
-      }
+      },
+      {
+          "name" : "rust remote debug",
+          "gdb": "/root/rust/cargo/bin/rust-gdb",
+          "request": "attach",
+          "type": "gdb",
+          "program": "${workspaceFolder}/target/debug/adder",
+          "verbose": true,
+          "openGdbConsole": true,
+          "target" : {
+              "type" : "remote",
+              "parameters" : ["127.0.0.1:3333"]
+          }
+      },
 
   ]
 }
