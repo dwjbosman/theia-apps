@@ -4,8 +4,10 @@ FROM ubuntu:18.04
 RUN apt-get update -yq \
     && apt-get install -yq \
     curl gnupg build-essential gcc g++ gdb make python sudo git \
-    # for gnat
-    libdbus-1-3 libx11-dev libx11-xcb-dev libfontconfig \
+    # for gnat community?
+    # libdbus-1-3 libx11-dev libx11-xcb-dev libfontconfig \
+    # gnat ada
+    gnat \
     # for conda
     wget \
     # for building openocd
@@ -20,8 +22,38 @@ RUN apt-get update -yq \
 ADD sudoers /etc/sudoers
 
 RUN cd /root && wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && bash Miniconda3-latest-Linux-x86_64.sh -b -p /root/miniconda
+RUN /root/miniconda/conda --init
+RUN conda create gnat_env python=2
+
 
 RUN cd /root && git clone https://github.com/AdaCore/libadalang
+ADD install-lal-and-deps.sh /root/libadalang
+
+RUN mkdir /root/ada/tools
+RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/xmlada.git
+RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/gprbuild.git
+
+ADD gprbuild/Makefile /root/ada/build_tools/gprbuild/Makefile
+RUN cd /root/ada/build_tools && export GNATMAKEFLAGS=-gnatE && bash bootstrap.sh --with-xmlada=../xmlada --prefix=./bootstrap
+
+RUN cd /root/ada/build_tools/xmlada && export PATH=$PATH:/root/ada/build_tools/gprbuild/bootstrap/bin && ./configure && make install prefix=/root/ada/adalib && make install-static prefix=/root/ada/adalib
+RUN cd /root/ada/build_tools/gprbuild && \
+    ln -sf /root/ada/build_tools/xmlada && \
+    make prefix=/root/ada/adalib SOURCE_DIR=/root/ada/build_tools/gprbuild setup && \
+    PATH=$PATH:/root/ada/build_tools/gprbuild/bootstrap/bin GPR_PROJECT_PATH=xmlada/xmlada_install/share/gpr make && \
+    make install && \ 
+    make libgpr.build.static && \
+    make libgpr.install.static
+
+RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/gnatcoll-core)
+RUN cd /root/ada/build_tools/gnatcoll-core && \
+    GPR_PROJECT_PATH=/root/ada/adalib/share/gpr make PROCESSORS=0 prefix=/root/ada/adalib LIBRARY_TYPES=static build install 
+
+RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/gnatcoll-bindings
+
+RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/langkit
+#TODO checkout correct branch
+RUN source /opt/conda/activate gnat_env && pip install -r /root/ada/build_tools/langkit/REQUIREMENTS.dev
 
 RUN cd /root && git clone https://github.com/AdaCore/ada_language_server.git
 
@@ -55,7 +87,7 @@ RUN mkdir -p $APP_HOME && \
     groupadd -g 500 app && \
     chown root:app $APP_HOME && \
     chmod g+rwxs $APP_HOME 
-R
+
 # ADD build-env/openocd /root/openocd
 # RUN cd /root/openocd && ./bootstrap && ./configure --enable-stlink && make && make install
 
