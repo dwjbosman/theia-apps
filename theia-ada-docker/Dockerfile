@@ -22,13 +22,14 @@ RUN apt-get update -yq \
 ADD sudoers /etc/sudoers
 
 RUN cd /root && wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && bash Miniconda3-latest-Linux-x86_64.sh -b -p /root/miniconda
-RUN /root/miniconda/conda --init
-RUN conda create gnat_env python=2
+ENV PATH=/root/miniconda/bin:${PATH}
+RUN conda init
+RUN bash -c "conda create -n gnat_env python=2"
 
-
-RUN wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.bz2 && \
+RUN cd /root && \
+    wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.bz2 && \
     tar -xvf gmp-6.1.2.tar.bz2 && \
-    cd gmp-6.1.2.tar.bz2 && \
+    cd /root/gmp-6.1.2 && \
     ./configure && \
     make && \
     make install
@@ -36,14 +37,14 @@ RUN wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.bz2 && \
 RUN cd /root && git clone https://github.com/AdaCore/libadalang
 ADD install-lal-and-deps.sh /root/libadalang
 
-RUN mkdir /root/ada/tools
+RUN mkdir -p /root/ada/build_tools
 RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/xmlada.git
 RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/gprbuild.git
 
 ADD gprbuild/Makefile /root/ada/build_tools/gprbuild/Makefile
-RUN cd /root/ada/build_tools && export GNATMAKEFLAGS=-gnatE && bash bootstrap.sh --with-xmlada=../xmlada --prefix=./bootstrap
+RUN cd /root/ada/build_tools/gprbuild && export GNATMAKEFLAGS=-gnatE && bash bootstrap.sh --with-xmlada=../xmlada --prefix=./bootstrap
 
-RUN cd /root/ada/build_tools/xmlada && export PATH=$PATH:/root/ada/build_tools/gprbuild/bootstrap/bin && ./configure && make install prefix=/root/ada/adalib && make install-static prefix=/root/ada/adalib
+RUN cd /root/ada/build_tools/xmlada && GPR_PROJECT_PATH=/root/ada/adalib/share/gpr:/root/ada/build_tools/xmlada && export PATH=$PATH:/root/ada/build_tools/gprbuild/bootstrap/bin && ./configure && make install prefix=/root/ada/adalib && make install-static prefix=/root/ada/adalib
 RUN cd /root/ada/build_tools/gprbuild && \
     ln -sf /root/ada/build_tools/xmlada && \
     make prefix=/root/ada/adalib SOURCE_DIR=/root/ada/build_tools/gprbuild setup && \
@@ -62,12 +63,11 @@ RUN source /opt/conda/activate gnat_env && pip install -r /root/ada/build_tools/
 RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/gnatcoll-bindings
 RUN source /opt/conda/avtivate gnat_env && \
     cd /root/ada/build_tools/iconv && \
-    GPR_PROJECT_PATH=/root/ada/adalib/share/gpr python setup.py build --reconfigure -j0 --prefix="/root/ada/adalib" --library-types=static
-    GPR_PROJECT_PATH=/root/ada/adalib/share/gpr python setup.py instal
+    GPR_PROJECT_PATH=/root/ada/adalib/share/gpr python setup.py build --reconfigure -j0 --prefix="/root/ada/adalib" --library-types=static && \
+    GPR_PROJECT_PATH=/root/ada/adalib/share/gpr python setup.py install && \
     cd /root/ada/build_tools/gmp && \
-    GPR_PROJECT_PATH=/root/ada/adalib/share/gpr python setup.py build --reconfigure -j0 --prefix="/root/ada/adalib" --library-types=static
-    GPR_PROJECT_PATH=/root/ada/adalib/share/gpr python setup.py instal
-  
+    GPR_PROJECT_PATH=/root/ada/adalib/share/gpr python setup.py build --reconfigure -j0 --prefix="/root/ada/adalib" --library-types=static && \
+    GPR_PROJECT_PATH=/root/ada/adalib/share/gpr python setup.py install
 
 RUN cd /root && git clone https://github.com/AdaCore/ada_language_server.git
 
