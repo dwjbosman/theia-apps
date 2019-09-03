@@ -10,7 +10,7 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 RUN apt-get update -yq \
     && apt-get install -yq \
     software-properties-common \ 
-    curl gnupg build-essential gcc-9 g++-9 gdb-9 make python sudo git \
+    curl gnupg build-essential gcc-9 g++-9 gdb make python sudo git \
     # for gnat community?
     # libdbus-1-3 libx11-dev libx11-xcb-dev libfontconfig \
     # gnat ada
@@ -26,6 +26,7 @@ RUN apt-get update -yq \
     # for cargo-generate
     libssl1.0-dev 
 
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
 
 # allow a user to become root in the container
 ADD sudoers /etc/sudoers
@@ -51,9 +52,14 @@ RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/xmlada.git
 RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/gprbuild.git
 
 ADD gprbuild/Makefile /root/ada/build_tools/gprbuild/Makefile
+
+# add -no-pie
+ADD gprbuild/share/gprconfig/linker.xml /root/ada/build_tools/gprbuild/share/gprconfig/linker.xml
+RUN cd /usr/lib/gcc/x86_64-linux-gnu && ln -s 9 9.1.0
+
 RUN cd /root/ada/build_tools/gprbuild && export GNATMAKEFLAGS=-gnatE && bash bootstrap.sh --with-xmlada=../xmlada --prefix=./bootstrap
 
-RUN cd /root/ada/build_tools/xmlada && GPR_PROJECT_PATH=/root/ada/adalib/share/gpr:/root/ada/build_tools/xmlada && export PATH=$PATH:/root/ada/build_tools/gprbuild/bootstrap/bin && ./configure && make all install prefix=/root/ada/adalib 
+RUN cd /root/ada/build_tools/xmlada && GPR_PROJECT_PATH=/root/ada/adalib/share/gpr:/root/ada/build_tools/xmlada && export PATH=$PATH:/root/ada/build_tools/gprbuild/bootstrap/bin && ./configure --enable-shared && make all install prefix=/root/ada/adalib 
 #&& make install-static prefix=/root/ada/adalib
 RUN cd /root/ada/build_tools/gprbuild && \
     ln -sf /root/ada/build_tools/xmlada && \
@@ -62,17 +68,19 @@ RUN cd /root/ada/build_tools/gprbuild && \
     export GPR_PROJECT_PATH=/root/ada/adalib/share/gpr && \
     make && \
     make install && \ 
-    make libgpr.build.static && \
-    make libgpr.install.static
+    make libgpr.build.shared && \
+    make libgpr.install.shared
 
 # allow usage of gprbuild
 ENV PATH=/root/ada/adalib/bin:${PATH}
 ENV GPR_PROJECT_PATH=/root/ada/adalib/share/gpr 
 
 RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/gnatcoll-core
+# add -gnatE
+ADD gnatcoll-core/gnatcoll.gpr /root/ada/build_tools/gnatcoll-core/gnatcoll.gpr
 
 RUN cd /root/ada/build_tools/gnatcoll-core && \
-    make PROCESSORS=0 prefix=/root/ada/adalib LIBRARY_TYPES=static build install 
+    make PROCESSORS=0 ENABLE_SHARED=yes prefix=/root/ada/adalib LIBRARY_TYPES=relocatable build install VERBOSE=true 
 
 RUN cd /root/libadalang && git clone https://github.com/AdaCore/langkit
 
@@ -81,17 +89,29 @@ RUN /bin/bash -c '. activate gnat_env && \
 
 RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/gnatcoll-bindings
 
+
+# add -gnatE
+ADD gnatcoll-bindings/iconv/gnatcoll_iconv.gpr /root/ada/build_tools/gnatcoll-bindings/iconv/gnatcoll_iconv.gpr
+# add -gnatE
+ADD gnatcoll-bindings/gmp/gnatcoll_gmp.gpr /root/ada/build_tools/gnatcoll-bindings/gmp/gnatcoll_gmp.gpr
 RUN /bin/bash -c '. activate gnat_env && \
             cd /root/ada/build_tools/gnatcoll-bindings/iconv && \
-            python setup.py build --reconfigure -j0 --prefix="/root/ada/adalib" --library-types=static && \
+            python setup.py build --reconfigure -j0 --prefix="/root/ada/adalib" --library-types=relocatable && \
             python setup.py install && \
             cd /root/ada/build_tools/gnatcoll-bindings/gmp && \
-            python setup.py build --reconfigure -j0 --prefix="/root/ada/adalib" --library-types=static && \
+            python setup.py build --reconfigure -j0 --prefix="/root/ada/adalib" --library-types=relocatable && \
             python setup.py install'
+
+# add -gnatE
+ADD libadalang/langkit/langkit/templates/project_file.mako /root/libadalang/langkit/langkit/templates/project_file.mako
 RUN /bin/bash -c '. activate gnat_env && \
             cd /root/libadalang && \
-            ada/manage.py --library-types static --verbosity debug  generate -P && \
-            ada/manage.py --library-types static --verbosity debug  build -j1'
+            ada/manage.py --library-types relocatable --verbosity debug  generate -P'
+# TODO combine
+RUN /bin/bash -c '. activate gnat_env && \
+            cd /root/libadalang && \
+            ada/manage.py --library-types relocatable --verbosity debug  build -j12'
+
 
 RUN cd /root && git clone https://github.com/AdaCore/ada_language_server.git
 
