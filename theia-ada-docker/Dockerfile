@@ -144,14 +144,19 @@ ADD libadalang/langkit/langkit/templates/langkit_support_gpr.mako /root/libadala
 
 RUN /bin/bash -c '. activate gnat_env && \
             cd /root/libadalang && \
-            ada/manage.py --library-types relocatable --verbosity debug  generate -P'
-# TODO combine
-RUN /bin/bash -c '. activate gnat_env && \
-            cd /root/libadalang && \
-            ada/manage.py --library-types relocatable --verbosity debug  build -j12'
+            ada/manage.py --library-types relocatable --verbosity debug  generate -P && \
+            ada/manage.py --library-types relocatable --verbosity debug  build -j12 && \
+            ada/manage.py install /root/ada/adalib'
 
 
-RUN cd /root && git clone https://github.com/AdaCore/ada_language_server.git
+RUN cd /root/ada && git clone https://github.com/AdaCore/ada_language_server.git
+ADD ada_language_server/Makefile /root/ada/ada_language_server/Makefile
+ADD ada_language_server/gnat/lsp.gpr /root/ada/ada_language_server/gnat/lsp.gpr
+RUN cd /root/ada/ada_language_server && \
+    make all && \
+    make install DESTDIR=/root/ada/adalib 
+
+#TODO use make ... variabel=xyz instead of hardcoding in Makefiles
 
 ARG GITHUB_TOKEN
 ARG NODE_OPTIONS="--max-old-space-size=4096"
