@@ -66,12 +66,14 @@ ENABLE_SHARED := $(shell gprbuild $(GTARGET) -c -q -p \
 
 ifeq ($(ENABLE_SHARED), yes)
    LIBGPR_TYPES=static shared static-pic
+   MAIN_TYPE=static
 else
    LIBGPR_TYPES=static
+   MAIN_TYPE=static
 endif
 
 # Used to pass extra options to GPRBUILD, like -d for instance
-GPRBUILD_OPTIONS=
+GPRBUILD_OPTIONS=-v
 GPRBUILD_OPTIONS_POST=-cargs:Ada -gnatE
 
 BUILDER=gprbuild -p -m $(GTARGET) $(RBD) -j${PROCESSORS} -XBUILD=${BUILD} ${GPRBUILD_OPTIONS}
@@ -79,7 +81,7 @@ LIB_INSTALLER=gprinstall -p -f --target=$(TARGET) $(RBD) --prefix=${prefix}
 CLEANER=gprclean -q $(RBD)
 
 GPRBUILD_BUILDER=$(BUILDER) $(GPRBUILD_GPR) \
-	-XLIBRARY_TYPE=static -XXMLADA_BUILD=static ${GPRBUILD_OPTIONS_POST}
+	-XLIBRARY_TYPE=$(MAIN_TYPE) -XXMLADA_BUILD=$(MAIN_TYPE) ${GPRBUILD_OPTIONS_POST}
 LIBGPR_BUILDER=$(BUILDER) $(GPR_GPR) ${GPRBUILD_OPTIONS_POST}
 LIBGPR_INSTALLER=$(LIB_INSTALLER) $(GPR_GPR) -XBUILD=${BUILD} \
 	--install-name=gpr \

@@ -52,29 +52,65 @@ RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/xmlada.git
 RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/gprbuild.git
 
 ADD gprbuild/Makefile /root/ada/build_tools/gprbuild/Makefile
+# add -gnatE
+ADD gprbuild/gpr/gpr.gpr /root/ada/build_tools/gprbuild/gpr/gpr.gpr
 
 # add -no-pie
 ADD gprbuild/share/gprconfig/linker.xml /root/ada/build_tools/gprbuild/share/gprconfig/linker.xml
 RUN cd /usr/lib/gcc/x86_64-linux-gnu && ln -s 9 9.1.0
 
-RUN cd /root/ada/build_tools/gprbuild && export GNATMAKEFLAGS=-gnatE && bash bootstrap.sh --with-xmlada=../xmlada --prefix=./bootstrap
+ENV GNATMAKEFLAGS=-gnatE 
+ENV ADAFLAGS=-gnatE
 
-RUN cd /root/ada/build_tools/xmlada && GPR_PROJECT_PATH=/root/ada/adalib/share/gpr:/root/ada/build_tools/xmlada && export PATH=$PATH:/root/ada/build_tools/gprbuild/bootstrap/bin && ./configure --enable-shared && make all install prefix=/root/ada/adalib 
-#&& make install-static prefix=/root/ada/adalib
+
+RUN cd /root/ada/build_tools/gprbuild && bash bootstrap.sh --with-xmlada=../xmlada --prefix=./bootstrap
+
+
+#build xmlada using bootstap gprbuild version
+RUN cd /root/ada/build_tools/xmlada && git clean -f -d -x
+#adds -gnatE
+ADD xmlada/shared.gpr.in /root/ada/build_tools/xmlada/shared.gpr.in
+RUN cd /root/ada/build_tools/xmlada && GPR_PROJECT_PATH=/root/ada/adalib/share/gpr:/root/ada/build_tools/xmlada && export PATH=$PATH:/root/ada/build_tools/gprbuild/bootstrap/bin && ./configure --enable-shared && make all install prefix=/root/ada/adalib_tmp
+ 
+#build dymamic gprbuild using bootstrap gprbuild (static), xmlada
 RUN cd /root/ada/build_tools/gprbuild && \
+    export GPR_PROJECT_PATH=/root/ada/adalib_tmp/share/gpr && \
     ln -sf /root/ada/build_tools/xmlada && \
     make prefix=/root/ada/adalib SOURCE_DIR=/root/ada/build_tools/gprbuild setup && \
     export PATH=$PATH:/root/ada/build_tools/gprbuild/bootstrap/bin && \
-    export GPR_PROJECT_PATH=/root/ada/adalib/share/gpr && \
     make && \
-    make install && \ 
-    make libgpr.build.shared && \
-    make libgpr.install.shared
+    make install
+
+#rebuild xmlada using gprbuild (dynamic)
+RUN cd /root/ada/build_tools/xmlada && git clean -f -d -x
+ADD xmlada/shared.gpr.in /root/ada/build_tools/xmlada/shared.gpr.in
+RUN cd /root/ada/build_tools/xmlada && \
+    export PATH=$PATH:/root/ada/adalib/bin && \
+    export GPR_PROJECT_PATH=/root/ada/adalib_tmp/share/gpr && \
+    ./configure --enable-shared && \
+    make all install prefix=/root/ada/adalib
+
+#build gprbuild using gprbuild (dynamic), xmlada
+# RUN cd /root/ada/build_tools/gprbuild && \
+#    export GPR_PROJECT_PATH=/root/ada/adalib/share/gpr && \
+#    ln -sf /root/ada/build_tools/xmlada && \
+#    make ENABLE_SHARED=yes prefix=/root/ada/adalib SOURCE_DIR=/root/ada/build_tools/gprbuild setup && \
+#    export PATH=$PATH:/root/ada/adalib_tmp/bin && \
+#    make clean && \
+#    make && \
+#    make install
 
 # allow usage of gprbuild
 ENV PATH=/root/ada/adalib/bin:${PATH}
 ENV GPR_PROJECT_PATH=/root/ada/adalib/share/gpr 
 
+# build gprlib using final gprbuild
+RUN cd /root/ada/build_tools/gprbuild && \
+    export GPR_PROJECT_PATH=/root/ada/adalib/share/gpr && \
+    make libgpr.build.shared && \
+    make libgpr.install.shared
+
+ 
 RUN cd /root/ada/build_tools && git clone https://github.com/AdaCore/gnatcoll-core
 # add -gnatE
 ADD gnatcoll-core/gnatcoll.gpr /root/ada/build_tools/gnatcoll-core/gnatcoll.gpr
@@ -104,6 +140,8 @@ RUN /bin/bash -c '. activate gnat_env && \
 
 # add -gnatE
 ADD libadalang/langkit/langkit/templates/project_file.mako /root/libadalang/langkit/langkit/templates/project_file.mako
+ADD libadalang/langkit/langkit/templates/langkit_support_gpr.mako /root/libadalang/langkit/langkit/templates/langkit_support_gpr.mako 
+
 RUN /bin/bash -c '. activate gnat_env && \
             cd /root/libadalang && \
             ada/manage.py --library-types relocatable --verbosity debug  generate -P'
